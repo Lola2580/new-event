@@ -1,1 +1,454 @@
-<!DOCTYPE html><html> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"> <meta name="theme-color" content="#0a0a0f"> <title>Accuracy King</title> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style> *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0} html,body{height:100%} body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#07070c;color:#fff;overflow-x:hidden;position:relative} /* Animated background glow */ body::before{content:"";position:fixed;inset:0;background: radial-gradient(circle at 15% 10%,rgba(0,255,255,0.10),transparent 40%), radial-gradient(circle at 85% 90%,rgba(255,0,120,0.10),transparent 40%), radial-gradient(circle at 50% 50%,rgba(120,0,255,0.06),transparent 60%); z-index:-1;pointer-events:none} /* ================= LOGIN ================= */ #loginScreen{display:flex;justify-content:center;align-items:center;min-height:100dvh;padding:24px; background:linear-gradient(135deg,#ff0040,#7b00ff,#00c0ff,#00ff6c);background-size:400% 400%; animation:gradientMove 10s ease infinite;position:relative;overflow:hidden} @keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}} #loginScreen::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(2px)} .login-box{position:relative;z-index:2;background:rgba(10,10,18,0.85);backdrop-filter:blur(24px) saturate(180%); padding:40px 28px;border-radius:26px;text-align:center;width:100%;max-width:380px; border:1px solid rgba(0,255,255,0.25); box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 40px rgba(0,255,255,0.15) inset; animation:boxIn .6s cubic-bezier(.2,.8,.2,1)} @keyframes boxIn{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:none}} .login-box h2{margin-bottom:26px;color:#0ff;font-size:28px;letter-spacing:4px;font-weight:800; text-shadow:0 0 20px rgba(0,255,255,0.6)} .login-box input{display:block;padding:15px 18px;margin:12px 0;width:100%;border-radius:14px; border:1.5px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#fff; font-size:16px;outline:none;transition:all .3s ease} .login-box input::placeholder{color:#666} .login-box input:focus{border-color:#0ff;background:rgba(0,255,255,0.06);box-shadow:0 0 20px rgba(0,255,255,0.25)} .login-box button{padding:15px 25px;margin-top:14px;border:none;border-radius:14px; background:linear-gradient(135deg,#00ffff,#0080ff);color:#000;font-weight:800;cursor:pointer; width:100%;font-size:16px;letter-spacing:2px;text-transform:uppercase; transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(0,255,255,0.35)} .login-box button:active{transform:scale(0.96);box-shadow:0 4px 12px rgba(0,255,255,0.5)} #loginMsg{margin-top:14px;font-size:14px;color:#ff4d4d;font-weight:600} /* ================= MAIN ================= */ #mainPage{display:none;padding:18px 16px 50px;max-width:600px;margin:auto; animation:fadeIn .5s ease} @keyframes fadeIn{from{opacity:0}to{opacity:1}} /* Header */ .header{text-align:center;margin:6px 0 18px} .header h1{font-size:22px;font-weight:800;letter-spacing:3px; background:linear-gradient(90deg,#00ffff,#00ff9d,#00ffff);background-size:200% auto; -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent; animation:shine 3s linear infinite;text-transform:uppercase} @keyframes shine{to{background-position:200% center}} .header .sub{font-size:11px;color:#555;letter-spacing:4px;margin-top:4px;text-transform:uppercase} /* Timer */ #timer{display:flex;align-items:center;justify-content:center;gap:12px; font-size:24px;font-weight:800;color:#0ff;background:linear-gradient(145deg,#0d0d18,#14141f); padding:16px;border-radius:18px;border:1px solid rgba(0,255,255,0.2); box-shadow:0 0 30px rgba(0,255,255,0.12),inset 0 1px 0 rgba(255,255,255,0.04); letter-spacing:3px;margin-bottom:16px;position:relative;overflow:hidden} #timer::before{content:"";position:absolute;inset:0; background:linear-gradient(90deg,transparent,rgba(0,255,255,0.08),transparent); animation:sweep 2.5s linear infinite} @keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}} #timer .dot{width:10px;height:10px;border-radius:50%;background:#0ff; box-shadow:0 0 12px #0ff;animation:pulse 1.2s ease-in-out infinite} @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}} /* Predictor */ .predictor-box{text-align:center;padding:26px 20px;border-radius:22px;margin-bottom:16px; background:linear-gradient(145deg,#0e0e1a,#161624); border:1px solid rgba(0,255,255,0.18); box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 30px rgba(0,255,255,0.10); position:relative;overflow:hidden} .predictor-box::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%; background:conic-gradient(from 0deg,transparent,rgba(0,255,255,0.06),transparent 30%); animation:rotate 6s linear infinite;pointer-events:none} @keyframes rotate{to{transform:rotate(360deg)}} .predictor-box .label{position:relative;font-size:11px;text-transform:uppercase; letter-spacing:5px;color:#7a7a8c;margin-bottom:16px;font-weight:600} .predictor-pill{position:relative;display:inline-block;padding:16px 40px;border-radius:60px; font-weight:800;font-size:22px;letter-spacing:1.5px;transition:all .35s cubic-bezier(.2,.8,.2,1)} .big{background:linear-gradient(135deg,#ff0055,#ff3366);color:#fff; box-shadow:0 0 30px rgba(255,0,85,0.6),0 8px 20px rgba(255,0,85,0.3); animation:bigGlow 2s ease-in-out infinite} @keyframes bigGlow{0%,100%{box-shadow:0 0 30px rgba(255,0,85,0.6),0 8px 20px rgba(255,0,85,0.3)}50%{box-shadow:0 0 50px rgba(255,0,85,0.9),0 8px 20px rgba(255,0,85,0.4)}} .small{background:linear-gradient(135deg,#00ff85,#00cc66);color:#001a0d; box-shadow:0 0 30px rgba(0,255,133,0.6),0 8px 20px rgba(0,255,133,0.3); animation:smallGlow 2s ease-in-out infinite} @keyframes smallGlow{0%,100%{box-shadow:0 0 30px rgba(0,255,133,0.6),0 8px 20px rgba(0,255,133,0.3)}50%{box-shadow:0 0 50px rgba(0,255,133,0.9),0 8px 20px rgba(0,255,133,0.4)}} .none{background:linear-gradient(135deg,#ffcc00,#ff9900);color:#1a1000; box-shadow:0 0 30px rgba(255,204,0,0.5),0 8px 20px rgba(255,204,0,0.25)} /* Toggle */ .toggle-row{position:relative;display:flex;align-items:center;justify-content:center;gap:10px; margin-top:22px;font-size:13px;color:#888;letter-spacing:1px} .toggle-row input[type="checkbox"]{width:22px;height:22px;accent-color:#0ff;cursor:pointer} /* ================= BOXES ================= */ .box{background:linear-gradient(145deg,#0d0d18,#15151f);padding:18px;border-radius:22px; margin-top:16px;border:1px solid rgba(0,255,255,0.12); box-shadow:0 10px 30px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03)} .box h2{font-size:13px;color:#0ff;margin-bottom:14px;letter-spacing:3px; text-transform:uppercase;display:flex;align-items:center;gap:10px;font-weight:700} .box h2::before{content:"";width:5px;height:16px;border-radius:3px; background:linear-gradient(180deg,#0ff,#0080ff);box-shadow:0 0 10px #0ff} /* Table */ .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:14px} table{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13.5px;min-width:280px} th{color:#7a7a8c;font-size:10.5px;text-transform:uppercase;letter-spacing:1.5px; padding:6px 4px 10px;text-align:center;font-weight:700;border:none} td{background:#12121c;padding:12px 6px;text-align:center;border:none;font-weight:600} td:first-child{border-radius:12px 0 0 12px} td:last-child{border-radius:0 12px 12px 0} tbody tr{transition:transform .2s} tbody tr:first-child td{background:linear-gradient(90deg,rgba(0,255,255,0.10),rgba(0,255,255,0.04)); color:#0ff;font-weight:800;box-shadow:0 0 20px rgba(0,255,255,0.08) inset} tbody tr:not(:first-child) td{background:#12121c;color:#c8c8d0} /* Search */ input.search{display:block;padding:15px 18px;margin-top:10px;width:100%;border-radius:14px; border:1.5px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#fff; font-size:16px;outline:none;transition:all .3s ease} input.search::placeholder{color:#555} input.search:focus{border-color:#0ff;background:rgba(0,255,255,0.06);box-shadow:0 0 20px rgba(0,255,255,0.2)} button.search-btn{padding:15px 20px;margin-top:12px;border:none;border-radius:14px; background:linear-gradient(135deg,#00ffff,#0080ff);color:#000;font-weight:800; width:100%;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer; transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(0,255,255,0.3)} button.search-btn:active{transform:scale(0.97);box-shadow:0 4px 12px rgba(0,255,255,0.5)} #manualResult{margin-top:16px;font-size:15px;text-align:center;padding:16px;border-radius:14px; background:rgba(255,255,255,0.03);border:1px dashed rgba(0,255,255,0.2);min-height:20px; color:#c8c8d0;letter-spacing:.5px} #manualResult:empty{display:none} /* Small phones (5.8" ~360px width) */ @media (max-width:380px){ #mainPage{padding:14px 12px 40px} .header h1{font-size:19px;letter-spacing:2px} #timer{font-size:21px;padding:14px} .predictor-pill{padding:14px 32px;font-size:19px} .box{padding:15px;border-radius:18px} table{font-size:12.5px} td{padding:10px 4px} } /* Tall phones (6.5"–6.9") — use extra space gracefully */ @media (min-height:820px){ #mainPage{padding-top:28px} .predictor-box{padding:32px 20px} } </style></head> <body><!-- LOGIN --><div id="loginScreen"> <div class="login-box"> <h2>LOGIN</h2> <input type="email" id="email" placeholder="Email" autocomplete="email"> <input type="password" id="password" placeholder="Password" autocomplete="current-password"> <button onclick="login()">Login</button> <div id="loginMsg"></div> </div> </div><!-- MAIN --><div id="mainPage"> <div class="header"> <h1>Logicless Predictor</h1> <div class="sub">Accuracy King</div> </div> <div id="timer"><span class="dot"></span><span id="timerText">--</span></div> <div class="predictor-box"> <div class="label">Prediction</div> <span id="predictionText" class="predictor-pill none">No Trade</span> <div class="toggle-row"> <input type="checkbox" id="beepToggle" checked> <label for="beepToggle">Beep On/Off</label> </div> <audio id="beepSound" src="https://www.soundjay.com/buttons_c2026/sounds/beep-01a.mp3"></audio> </div> <div class="box"> <h2>Last 10 Results</h2> <div class="table-wrap"> <table> <thead> <tr><th>Period</th><th>Number</th><th>Big/Small</th></tr> </thead> <tbody id="liveResults"></tbody> </table> </div> </div> <div class="box"> <h2>Manual Search</h2> <input class="search" type="text" id="manualSeq" placeholder="Enter sequence" inputmode="numeric"> <button class="search-btn" onclick="manualSearch()">Search</button> <div id="manualResult"></div> </div> </div><script> const supabaseUrl="https://xujisqauxmqiwdazphpn.supabase.co"; const supabaseKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1amlzcWF1eG1xaXdkYXpwaHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MjQ4NjIsImV4cCI6MjA4NTQwMDg2Mn0.5HGJsneJvntry-wKpz2wDd5MKe_CDACd99VKaMdrEd0"; const supabaseClient=window.supabase.createClient(supabaseUrl,supabaseKey); const API_URL="https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json"; let liveResults=[]; let autoFetch; /* LOGIN */ async function login(){ const email=document.getElementById("email").value; const password=document.getElementById("password").value; const {error}=await supabaseClient.auth.signInWithPassword({email,password}); if(error){ document.getElementById("loginMsg").innerText="Login Failed ❌"; }else{ document.getElementById("loginScreen").style.display="none"; document.getElementById("mainPage").style.display="block"; initApp(); } } /* INIT */ function initApp(){ startTimer(); fetchData(); autoFetch=setInterval(fetchData,5000); } /* TIMER */ function startTimer(){ setInterval(()=>{ let s=new Date().getSeconds(); let r=59-s; document.getElementById("timerText").innerText="TIMER: "+(r<10?"0"+r:r); },1000); } /* FETCH */ async function fetchData(){ try{ const res=await fetch(API_URL+"?t="+Date.now()); const json=await res.json(); if(!json.data?.list) return; const results=json.data.list.map(r=>({ period:r.issueNumber, digit:r.number, bigSmall:parseInt(r.number)>=5?"Big":"Small" })); const latest=results.slice(0,10); if(!liveResults.length||liveResults[0]?.period!==latest[0]?.period){ liveResults=latest; updateTable(); await addPrediction(results); } }catch(e){console.log(e);} } /* TABLE */ function updateTable(){ const tbody=document.getElementById("liveResults"); tbody.innerHTML=""; liveResults.forEach(r=>{ tbody.innerHTML+=`<tr> <td>${r.period}</td> <td>${r.digit}</td> <td>${r.bigSmall}</td> </tr>`; }); } /* SAVE + PREDICT */ async function addPrediction(results){ if(results.length<6) return; const seq=results.slice(1,6).map(r=>r.digit).join(''); const next=results[0].digit; await saveData(seq,next); await autoPredict(results); } async function saveData(seq,next){ const {data}=await supabaseClient .from('predictions') .select('next_numbers') .eq('sequence',seq) .maybeSingle(); if(data){ let arr=data.next_numbers.split(','); if(!arr.includes(next)){ arr.push(next); await supabaseClient.from('predictions') .update({next_numbers:arr.join(',')}) .eq('sequence',seq); } }else{ await supabaseClient.from('predictions') .insert([{sequence:seq,next_numbers:next}]); } } /* AUTO PREDICT */ async function autoPredict(results){ const seq=results.slice(0,5).map(r=>r.digit).join(''); const {data}=await supabaseClient .from('predictions') .select('*') .eq('sequence',seq) .maybeSingle(); if(data){ document.getElementById("predictionText").innerText=data.next_numbers; if(parseInt(data.next_numbers.split(',')[0])>=5) document.getElementById("predictionText").className="predictor-pill big"; else document.getElementById("predictionText").className="predictor-pill small"; if(document.getElementById("beepToggle").checked){ let sound=document.getElementById("beepSound"); sound.currentTime=0; sound.play(); setTimeout(()=>sound.pause(),3000); } }else{ document.getElementById("predictionText").innerText="No Trade"; document.getElementById("predictionText").className="predictor-pill none"; } } /* MANUAL SEARCH */ async function manualSearch(){ const seq=document.getElementById("manualSeq").value.trim(); if(!seq) return; const {data}=await supabaseClient .from('predictions') .select('*') .eq('sequence',seq) .maybeSingle(); if(data){ document.getElementById("manualResult").innerHTML="Found ✅ Next: "+data.next_numbers; }else{ document.getElementById("manualResult").innerText="No Data Found ❌"; } } </script></body> </html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<title>Accuracy King</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#07070c;color:#fff;overflow-x:hidden;position:relative}
+
+body::before{content:"";position:fixed;inset:0;background:
+  radial-gradient(circle at 15% 10%,rgba(0,255,255,0.10),transparent 40%),
+  radial-gradient(circle at 85% 90%,rgba(255,0,120,0.10),transparent 40%),
+  radial-gradient(circle at 50% 50%,rgba(120,0,255,0.06),transparent 60%);
+  z-index:-1;pointer-events:none}
+
+/* ================= LOGIN ================= */
+#loginScreen{display:flex;justify-content:center;align-items:center;min-height:100dvh;padding:24px;
+  background:linear-gradient(135deg,#ff0040,#7b00ff,#00c0ff,#00ff6c);background-size:400% 400%;
+  animation:gradientMove 10s ease infinite;position:relative;overflow:hidden}
+@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#loginScreen::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(2px)}
+.login-box{position:relative;z-index:2;background:rgba(10,10,18,0.85);backdrop-filter:blur(24px) saturate(180%);
+  padding:40px 28px;border-radius:26px;text-align:center;width:100%;max-width:380px;
+  border:1px solid rgba(0,255,255,0.25);
+  box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 40px rgba(0,255,255,0.15) inset;
+  animation:boxIn .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes boxIn{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:none}}
+.login-box h2{margin-bottom:26px;color:#0ff;font-size:28px;letter-spacing:4px;font-weight:800;
+  text-shadow:0 0 20px rgba(0,255,255,0.6)}
+.login-box input{display:block;padding:15px 18px;margin:12px 0;width:100%;border-radius:14px;
+  border:1.5px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#fff;
+  font-size:16px;outline:none;transition:all .3s ease}
+.login-box input::placeholder{color:#666}
+.login-box input:focus{border-color:#0ff;background:rgba(0,255,255,0.06);box-shadow:0 0 20px rgba(0,255,255,0.25)}
+.login-box button{padding:15px 25px;margin-top:14px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,#00ffff,#0080ff);color:#000;font-weight:800;cursor:pointer;
+  width:100%;font-size:16px;letter-spacing:2px;text-transform:uppercase;
+  transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(0,255,255,0.35)}
+.login-box button:active{transform:scale(0.96);box-shadow:0 4px 12px rgba(0,255,255,0.5)}
+#loginMsg{margin-top:14px;font-size:14px;color:#ff4d4d;font-weight:600}
+
+/* ================= MAIN ================= */
+#mainPage{display:none;padding:18px 16px 50px;max-width:600px;margin:auto;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.header{text-align:center;margin:6px 0 18px;position:relative}
+.header h1{font-size:22px;font-weight:800;letter-spacing:3px;
+  background:linear-gradient(90deg,#00ffff,#00ff9d,#00ffff);background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shine 3s linear infinite;text-transform:uppercase}
+@keyframes shine{to{background-position:200% center}}
+.header .sub{font-size:11px;color:#555;letter-spacing:4px;margin-top:4px;text-transform:uppercase}
+
+/* Top action bar (Refresh + Logout) */
+.top-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}
+.icon-btn{display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 14px;border-radius:12px;border:1px solid rgba(0,255,255,0.25);
+  background:rgba(0,255,255,0.06);color:#0ff;font-size:12.5px;font-weight:700;
+  letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.icon-btn:active{transform:scale(0.95);background:rgba(0,255,255,0.15)}
+.icon-btn.logout{border-color:rgba(255,60,90,0.3);background:rgba(255,60,90,0.08);color:#ff5577}
+.icon-btn.logout:active{background:rgba(255,60,90,0.18)}
+.icon-btn svg{width:15px;height:15px}
+.icon-btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Timer */
+#timer{display:flex;align-items:center;justify-content:center;gap:12px;
+  font-size:24px;font-weight:800;color:#0ff;background:linear-gradient(145deg,#0d0d18,#14141f);
+  padding:16px;border-radius:18px;border:1px solid rgba(0,255,255,0.2);
+  box-shadow:0 0 30px rgba(0,255,255,0.12),inset 0 1px 0 rgba(255,255,255,0.04);
+  letter-spacing:3px;margin-bottom:16px;position:relative;overflow:hidden}
+#timer::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(0,255,255,0.08),transparent);
+  animation:sweep 2.5s linear infinite}
+@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+#timer .dot{width:10px;height:10px;border-radius:50%;background:#0ff;
+  box-shadow:0 0 12px #0ff;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* Predictor */
+.predictor-box{text-align:center;padding:26px 20px;border-radius:22px;margin-bottom:16px;
+  background:linear-gradient(145deg,#0e0e1a,#161624);
+  border:1px solid rgba(0,255,255,0.18);
+  box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 30px rgba(0,255,255,0.10);
+  position:relative;overflow:hidden}
+.predictor-box::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:conic-gradient(from 0deg,transparent,rgba(0,255,255,0.06),transparent 30%);
+  animation:rotate 6s linear infinite;pointer-events:none}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.predictor-box .label{position:relative;font-size:11px;text-transform:uppercase;
+  letter-spacing:5px;color:#7a7a8c;margin-bottom:16px;font-weight:600}
+.predictor-pill{position:relative;display:inline-block;padding:16px 40px;border-radius:60px;
+  font-weight:800;font-size:22px;letter-spacing:1.5px;transition:all .35s cubic-bezier(.2,.8,.2,1)}
+.big{background:linear-gradient(135deg,#ff0055,#ff3366);color:#fff;
+  box-shadow:0 0 30px rgba(255,0,85,0.6),0 8px 20px rgba(255,0,85,0.3);
+  animation:bigGlow 2s ease-in-out infinite}
+@keyframes bigGlow{0%,100%{box-shadow:0 0 30px rgba(255,0,85,0.6),0 8px 20px rgba(255,0,85,0.3)}50%{box-shadow:0 0 50px rgba(255,0,85,0.9),0 8px 20px rgba(255,0,85,0.4)}}
+.small{background:linear-gradient(135deg,#00ff85,#00cc66);color:#001a0d;
+  box-shadow:0 0 30px rgba(0,255,133,0.6),0 8px 20px rgba(0,255,133,0.3);
+  animation:smallGlow 2s ease-in-out infinite}
+@keyframes smallGlow{0%,100%{box-shadow:0 0 30px rgba(0,255,133,0.6),0 8px 20px rgba(0,255,133,0.3)}50%{box-shadow:0 0 50px rgba(0,255,133,0.9),0 8px 20px rgba(0,255,133,0.4)}}
+.none{background:linear-gradient(135deg,#ffcc00,#ff9900);color:#1a1000;
+  box-shadow:0 0 30px rgba(255,204,0,0.5),0 8px 20px rgba(255,204,0,0.25)}
+
+.toggle-row{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:22px;font-size:13px;color:#888;letter-spacing:1px}
+.toggle-row input[type="checkbox"]{width:22px;height:22px;accent-color:#0ff;cursor:pointer}
+
+/* Boxes */
+.box{background:linear-gradient(145deg,#0d0d18,#15151f);padding:18px;border-radius:22px;
+  margin-top:16px;border:1px solid rgba(0,255,255,0.12);
+  box-shadow:0 10px 30px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03)}
+.box h2{font-size:13px;color:#0ff;margin-bottom:14px;letter-spacing:3px;
+  text-transform:uppercase;display:flex;align-items:center;gap:10px;font-weight:700}
+.box h2::before{content:"";width:5px;height:16px;border-radius:3px;
+  background:linear-gradient(180deg,#0ff,#0080ff);box-shadow:0 0 10px #0ff}
+
+/* Table */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:14px}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13.5px;min-width:280px}
+th{color:#7a7a8c;font-size:10.5px;text-transform:uppercase;letter-spacing:1.5px;
+  padding:6px 4px 10px;text-align:center;font-weight:700;border:none}
+td{background:#12121c;padding:12px 6px;text-align:center;border:none;font-weight:600}
+td:first-child{border-radius:12px 0 0 12px}
+td:last-child{border-radius:0 12px 12px 0}
+tbody tr{transition:transform .2s}
+tbody tr:first-child td{background:linear-gradient(90deg,rgba(0,255,255,0.10),rgba(0,255,255,0.04));
+  color:#0ff;font-weight:800;box-shadow:0 0 20px rgba(0,255,255,0.08) inset}
+tbody tr:not(:first-child) td{background:#12121c;color:#c8c8d0}
+
+/* Search */
+input.search{display:block;padding:15px 18px;margin-top:10px;width:100%;border-radius:14px;
+  border:1.5px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#fff;
+  font-size:16px;outline:none;transition:all .3s ease}
+input.search::placeholder{color:#555}
+input.search:focus{border-color:#0ff;background:rgba(0,255,255,0.06);box-shadow:0 0 20px rgba(0,255,255,0.2)}
+button.search-btn{padding:15px 20px;margin-top:12px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,#00ffff,#0080ff);color:#000;font-weight:800;
+  width:100%;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(0,255,255,0.3)}
+button.search-btn:active{transform:scale(0.97);box-shadow:0 4px 12px rgba(0,255,255,0.5)}
+#manualResult{margin-top:16px;font-size:15px;text-align:center;padding:16px;border-radius:14px;
+  background:rgba(255,255,255,0.03);border:1px dashed rgba(0,255,255,0.2);min-height:20px;
+  color:#c8c8d0;letter-spacing:.5px}
+#manualResult:empty{display:none}
+
+/* Small phones (5.8") */
+@media (max-width:380px){
+  #mainPage{padding:14px 12px 40px}
+  .header h1{font-size:19px;letter-spacing:2px}
+  #timer{font-size:21px;padding:14px}
+  .predictor-pill{padding:14px 32px;font-size:19px}
+  .box{padding:15px;border-radius:18px}
+  table{font-size:12.5px}
+  td{padding:10px 4px}
+  .icon-btn{padding:8px 11px;font-size:11.5px}
+}
+
+/* Tall phones (6.5"–6.9") */
+@media (min-height:820px){
+  #mainPage{padding-top:28px}
+  .predictor-box{padding:32px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>LOGIN</h2>
+    <input type="email" id="email" placeholder="Email" autocomplete="email">
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+    <button onclick="login()">Login</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="mainPage">
+  <div class="top-actions">
+    <button class="icon-btn" id="refreshBtn" onclick="manualRefresh()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-3-6.7L21 8"/>
+        <path d="M21 3v5h-5"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="header">
+    <h1>Logicless Predictor</h1>
+    <div class="sub">Accuracy King</div>
+  </div>
+
+  <div id="timer"><span class="dot"></span><span id="timerText">--</span></div>
+
+  <div class="predictor-box">
+    <div class="label">Prediction</div>
+    <span id="predictionText" class="predictor-pill none">No Trade</span>
+    <div class="toggle-row">
+      <input type="checkbox" id="beepToggle" checked>
+      <label for="beepToggle">Beep On/Off</label>
+    </div>
+    <audio id="beepSound" src="https://www.soundjay.com/buttons_c2026/sounds/beep-01a.mp3"></audio>
+  </div>
+
+  <div class="box">
+    <h2>Last 10 Results</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Period</th><th>Number</th><th>Big/Small</th></tr>
+        </thead>
+        <tbody id="liveResults"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Manual Search</h2>
+    <input class="search" type="text" id="manualSeq" placeholder="Enter sequence" inputmode="numeric">
+    <button class="search-btn" onclick="manualSearch()">Search</button>
+    <div id="manualResult"></div>
+  </div>
+</div>
+
+<script>
+const supabaseUrl="https://xujisqauxmqiwdazphpn.supabase.co";
+const supabaseKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1amlzcWF1eG1xaXdkYXpwaHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MjQ4NjIsImV4cCI6MjA4NTQwMDg2Mn0.5HGJsneJvntry-wKpz2wDd5MKe_CDACd99VKaMdrEd0";
+
+// Session ko localStorage me persist karo taaki refresh pe login na aaye
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: window.localStorage
+  }
+});
+
+const API_URL="https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+
+let liveResults=[];
+let autoFetch;
+let timerInterval;
+
+/* ============ BOOT: session check ============ */
+(async function boot(){
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if(session){
+    // Already logged in — seedha main page
+    showMain();
+  } else {
+    // Login screen visible by default
+    document.getElementById("loginScreen").style.display="flex";
+    document.getElementById("mainPage").style.display="none";
+  }
+})();
+
+/* LOGIN */
+async function login(){
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
+
+const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+
+if(error){
+document.getElementById("loginMsg").innerText="Login Failed ❌";
+}else{
+showMain();
+}
+}
+
+function showMain(){
+document.getElementById("loginScreen").style.display="none";
+document.getElementById("mainPage").style.display="block";
+initApp();
+}
+
+/* LOGOUT */
+async function logout(){
+  await supabaseClient.auth.signOut();
+  clearInterval(autoFetch);
+  clearInterval(timerInterval);
+  liveResults=[];
+  document.getElementById("mainPage").style.display="none";
+  document.getElementById("loginScreen").style.display="flex";
+  document.getElementById("email").value="";
+  document.getElementById("password").value="";
+  document.getElementById("loginMsg").innerText="";
+}
+
+/* MANUAL REFRESH */
+async function manualRefresh(){
+  const btn=document.getElementById("refreshBtn");
+  btn.classList.add("spinning");
+  try{
+    await fetchData(true); // force refresh
+  }catch(e){ console.log(e); }
+  setTimeout(()=>btn.classList.remove("spinning"),700);
+}
+
+/* INIT */
+function initApp(){
+  // cleanup agar pehle se chal raha ho
+  clearInterval(autoFetch);
+  clearInterval(timerInterval);
+  startTimer();
+  fetchData();
+  autoFetch=setInterval(fetchData,5000);
+}
+
+/* TIMER */
+function startTimer(){
+  // pehle se interval clear (double na ho)
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    let s=new Date().getSeconds();
+    let r=59-s;
+    document.getElementById("timerText").innerText="TIMER: "+(r<10?"0"+r:r);
+  },1000);
+}
+
+/* FETCH */
+async function fetchData(force=false){
+try{
+const res=await fetch(API_URL+"?t="+Date.now());
+const json=await res.json();
+if(!json.data?.list) return;
+
+const results=json.data.list.map(r=>({
+period:r.issueNumber,
+digit:r.number,
+bigSmall:parseInt(r.number)>=5?"Big":"Small"
+}));
+
+const latest=results.slice(0,10);
+
+if(force || !liveResults.length || liveResults[0]?.period!==latest[0]?.period){
+liveResults=latest;
+updateTable();
+await addPrediction(results);
+}
+
+}catch(e){console.log(e);}
+}
+
+/* TABLE */
+function updateTable(){
+const tbody=document.getElementById("liveResults");
+tbody.innerHTML="";
+liveResults.forEach(r=>{
+tbody.innerHTML+=`<tr>
+<td>${r.period}</td>
+<td>${r.digit}</td>
+<td>${r.bigSmall}</td>
+</tr>`;
+});
+}
+
+/* SAVE + PREDICT */
+async function addPrediction(results){
+
+if(results.length<6) return;
+
+const seq=results.slice(1,6).map(r=>r.digit).join('');
+const next=results[0].digit;
+
+await saveData(seq,next);
+
+await autoPredict(results);
+}
+
+async function saveData(seq,next){
+
+const {data}=await supabaseClient
+.from('predictions')
+.select('next_numbers')
+.eq('sequence',seq)
+.maybeSingle();
+
+if(data){
+let arr=data.next_numbers.split(',');
+if(!arr.includes(next)){
+arr.push(next);
+await supabaseClient.from('predictions')
+.update({next_numbers:arr.join(',')})
+.eq('sequence',seq);
+}
+}else{
+await supabaseClient.from('predictions')
+.insert([{sequence:seq,next_numbers:next}]);
+}
+}
+
+/* AUTO PREDICT */
+async function autoPredict(results){
+
+const seq=results.slice(0,5).map(r=>r.digit).join('');
+
+const {data}=await supabaseClient
+.from('predictions')
+.select('*')
+.eq('sequence',seq)
+.maybeSingle();
+
+if(data){
+document.getElementById("predictionText").innerText=data.next_numbers;
+
+if(parseInt(data.next_numbers.split(',')[0])>=5)
+document.getElementById("predictionText").className="predictor-pill big";
+else
+document.getElementById("predictionText").className="predictor-pill small";
+
+if(document.getElementById("beepToggle").checked){
+let sound=document.getElementById("beepSound");
+sound.currentTime=0;
+sound.play();
+setTimeout(()=>sound.pause(),3000);
+}
+}else{
+document.getElementById("predictionText").innerText="No Trade";
+document.getElementById("predictionText").className="predictor-pill none";
+}
+}
+
+/* MANUAL SEARCH */
+async function manualSearch(){
+const seq=document.getElementById("manualSeq").value.trim();
+if(!seq) return;
+
+const {data}=await supabaseClient
+.from('predictions')
+.select('*')
+.eq('sequence',seq)
+.maybeSingle();
+
+if(data){
+document.getElementById("manualResult").innerHTML="Found ✅ Next: "+data.next_numbers;
+}else{
+document.getElementById("manualResult").innerText="No Data Found ❌";
+}
+}
+</script>
+
+</body>
+</html>
